@@ -75,11 +75,69 @@
       });
 
       QUnit.test("list tests", function (assert) {
-        assert.ok(false);
+          var noms = [], prenoms = [];
+          $('#contacts').find('table').find('tr').not(':first').each(function () {
+              prenoms.push($(this).find('#cellFirstName').html());
+              noms.push($(this).find('#cellLastName').html());
+          });
+
+          var iterator = Contact.Contacts.instance().iterator();
+          var i = 0;
+          while(iterator.hasNext()){
+             var row = iterator.next();
+              assert.ok(row.firstName() == prenoms[i] && row.lastName() == noms[i]);
+             i++;
+          }
       });
 
       QUnit.test("first entry tests", function (assert) {
-        assert.ok(false);
+          var iterator = Contact.Contacts.instance().iterator();
+         $('#contacts').find('table').find('tr').eq(1).each(function(){
+             assert.ok($(this).find('#cellFirstName').html() == iterator.first().firstName());
+             assert.ok($(this).find('#cellLastName').html() == iterator.first().lastName());
+
+             var cellPhone = '';
+             var contact = iterator.first();
+             for (var i = 0; i < contact.phones().length; i++) {
+                 var phone = contact.phones()[i];
+
+                 cellPhone += phone.number();
+                 if (phone.category() === Contact.PhoneCategory.PRO) {
+                     cellPhone += '[PRO]';
+                 } else {
+                     cellPhone += '[PERSO]';
+                 }
+                 if (phone.type() === Contact.PhoneType.MOBILE) {
+                     cellPhone += '[MOBILE]';
+                 } else if (phone.type() === Contact.PhoneType.FAX) {
+                     cellPhone += '[FAX]';
+                 } else {
+                     cellPhone += '[PHONE]';
+                 }
+                 if (i < contact.phones().length - 1) {
+                     cellPhone += '/';
+                 }
+             }
+             assert.ok($(this).find('#cellPhones').html() == cellPhone);
+
+             var cellMail = '';
+             for (i = 0; i < contact.mails().length; ++i) {
+                 var mail = contact.mails()[i];
+
+                 cellMail += mail.address();
+                 if (mail.category() === Contact.MailCategory.PRO) {
+                     cellMail += '[PRO]';
+                 } else {
+                     cellMail += '[PERSO]';
+                 }
+                 if (i < contact.phones().length - 1) {
+                     cellMail += '/';
+                 }
+             }
+             assert.ok($(this).find('#cellMails').html() == cellMail);
+
+             assert.ok($(this).find('#cellTags').html() == iterator.first().tags());
+         });
       });
 
       QUnit.test("remove contact tests", function (assert) {
