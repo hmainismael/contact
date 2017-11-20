@@ -64,7 +64,14 @@
     <!-- BEGIN - Les tests -->
     <script>
       QUnit.test("header tests", function (assert) {
-        assert.ok(false);
+          var headers = ['First name', 'Last name', 'Phones', 'Mails', 'Tags', 'Actions'];
+          var headersInDocument = [];
+        $('#contacts').find('th').each(function(){
+            headersInDocument.push($(this).html());
+        });
+        for(var i=0; i<headers.length; i++){
+            assert.ok(headers[i] == headersInDocument[i]);
+        }
       });
 
       QUnit.test("list tests", function (assert) {
