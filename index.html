@@ -135,17 +135,36 @@
                  }
              }
              assert.ok($(this).find('#cellMails').html() == cellMail);
-
              assert.ok($(this).find('#cellTags').html() == iterator.first().tags());
          });
       });
 
       QUnit.test("remove contact tests", function (assert) {
-        assert.ok(false);
+          var iterator = Contact.Contacts.instance().iterator();
+          var firstContact = iterator.first();
+          $('#button_' + firstContact.id()).click();
+          assert.ok($('table').find('tr').not(':first').length == 3);
+
+          var iterator = Contact.Contacts.instance().iterator();
+          var nbContact = 0;
+          while(iterator.hasNext()){
+              var row = iterator.next();
+              assert.ok(row.firstName() != 'Eric' && row.lastName() != 'RAMAT');
+              ++nbContact;
+          }
+          assert.ok(nbContact == 3);
       });
 
       QUnit.test("sort contact tests", function (assert) {
-        assert.ok(false);
+          $('#button_sort').trigger('click');
+          var noms = [];
+          $('#contacts').find('table').find('tr').not(':first').each(function () {
+              noms.push($(this).find('#cellLastName').html());
+          });
+
+          for(var i=0; i<noms.length - 1; i++){
+              assert.ok(noms[i] < noms[i+1]);
+          }
       });
     </script>
     <!-- END - Les tests -->

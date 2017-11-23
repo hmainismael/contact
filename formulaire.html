@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Contacts</title>
+
+    <link rel="stylesheet" href="css/qunit-2.4.1.css">
+    <link rel="stylesheet" href="css/contact.css">
+    <script src="js/qunit-2.4.1.js"></script>
+    <script src="js/jquery-2.2.4.min.js"></script>
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script src="js/bootstrap.min.js"></script>
+
+    <script src="src/phone.js"></script>
+    <script src="src/mail.js"></script>
+    <script src="src/contact.js"></script>
+    <script src="src/contacts.js"></script>
+    <script src="src/builder.js"></script>
+    <script src="src/contactIterator.js"></script>
+    <script src="src/storage.js"></script>
+
+    <script src="src/view.js"></script>
+    <script src="src/model.js"></script>
+    <script src="src/controller.js"></script>
+
+    <!-- BEGIN - La fonction de construction -->
+    <script>
+        var build = function () {
+            var model = new Contact.Model();
+            var view = new Contact.View(model);
+            var controller = new Contact.Controller(model, view);
+        };
+        var addContact = function () {
+                var firstName = $('#firstName'),
+                    lastName = $('#lastName'),
+                    email = $('#email');
+                var inputsNotEmpty = $('#ajout-contact').find('input').val() != '';
+                if(inputsNotEmpty) {
+                    var contactToAdd = new Contact.Builder().createContactWithProfessionalMail(
+                        Contact.Gender.MR, firstName.val(), lastName.val(), email.val());
+                    Contact.Contacts.instance().add(contactToAdd);
+                }
+        };
+        var deleteValInputs = function () {
+            $('#ajout-contact').find('input').val('');
+        }
+    </script>
+    <!-- END - La fonction de construction -->
+
+    <script>
+        $(document).ready(function () {
+            build();
+            $('#btn-valider').click(function (){
+                addContact();
+            });
+            $('#btn-annuler').click(function () {
+                deleteValInputs();
+            });
+        });
+    </script>
+
+    <!-- BEGIN - Les tests -->
+    <script>
+        QUnit.test("check form elements tests", function (assert) {
+            var formAddContact = $('#ajout-contact');
+            assert.ok(formAddContact.find('input').length == 3);
+            assert.ok(formAddContact.find('#btn-valider').html() == 'Valider');
+            assert.ok(formAddContact.find('#btn-annuler').html() == 'Annuler');
+        });
+
+        QUnit.test("add contact tests", function (assert) {
+            var iterator1 = Contact.Contacts.instance().iterator();
+            var nbContactsBeforeAdd = 0;
+            while(iterator1.hasNext()) { nbContactsBeforeAdd++; }
+
+            $('#firstName').val('HMAIN');
+            $('#lastName').val('Ismael');
+            $('#email').val('hmain.ismael@hotmail.fr');
+            $('#btn-valider').trigger('click');
+
+            var iterator2 = Contact.Contacts.instance().iterator();
+            var nbContactsAfterAdd = 0;
+            while(iterator2.hasNext()) { nbContactsAfterAdd++; }
+
+            assert.ok(nbContactsAfterAdd == (nbContactsBeforeAdd + 1));
+        });
+
+        QUnit.test("cancel contact tests", function (assert) {
+            var iterator = Contact.Contacts.instance().iterator();
+            var nbContactsBeforeCancel = 0;
+            while(iterator.hasNext()){ nbContactsBeforeCancel++; };
+
+            $('#btn-annuler').trigger('click');
+
+            var iterator = Contact.Contacts.instance().iterator();
+            var nbContactsAfterCancel = 0;
+            while(iterator.hasNext()){ nbContactsAfterCancel++; };
+
+            assert.ok(nbContactsBeforeCancel == nbContactsAfterCancel);
+        });
+    </script>
+    <!-- END - Les tests -->
+
+</head>
+<body>
+<div class="container" style="margin-top: 30px">
+    <form class="form-horizontal" id="ajout-contact">
+        <fieldset>
+            <legend>Ajouter un contact</legend>
+            <div class="form-group">
+                <label class="col-md-4 control-label">First Name</label>
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <input id="firstName" placeholder="First Name" class="form-control"  type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-4 control-label" >Last Name</label>
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <input id="lastName" placeholder="Last Name" class="form-control"  type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-4 control-label">E-Mail</label>
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <input id="email" placeholder="E-Mail" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-4 control-label"></label>
+                <div class="col-md-4">
+                    <button type="button" role="button" class="btn btn-primary" id="btn-valider">Valider</button>
+                    <button type="button" role="button" class="btn btn-danger" id="btn-annuler">Annuler</button>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</div>
+<div id="qunit"></div>
+</body>
+</html>
